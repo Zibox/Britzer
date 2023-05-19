@@ -1,19 +1,28 @@
 Function New-IpRange {
+    <#
+        .SYNOPSIS
+        Used to build ipaddress lists from subnets.
+
+        .PARAMETER Subnet
+        Subnet in CIDR notation.
+        
+    #>
     [Cmdletbinding()]
     Param(
-        [Parameter(Mandatory,
-        ValueFromPipeline)]
+        [Parameter(Mandatory = $true,
+        ValueFromPipeline = $true)]
         [ValidatePattern("^(([12]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])(\.|\/)){4}([1-2]?[0-9]|3[0-2])$")]
         [string[]] $Subnet
     )
     Begin {
         $job = {
+            test
             param($guid)
             While ($Britzer['Temp']['Ip']['maxHosts'].Count -gt 1) {
                 # lock queue to dequeue, perf hit is minimal and beats concurrentqueue by a LOT.
-                [System.Threading.Monitor]::Enter($Britzer['Temp']['Ip']['maxHosts'])
+                #[System.Threading.Monitor]::Enter($Britzer['Temp']['Ip']['maxHosts'])
                 $i = $Britzer['Temp']['Ip']['maxHosts'].DeQueue()
-                [System.Threading.Monitor]::Exit($Britzer['Temp']['Ip']['maxHosts'])
+                #[System.Threading.Monitor]::Exit($Britzer['Temp']['Ip']['maxHosts'])
                 $nextHostBin = [Convert]::ToString(([Convert]::ToInt32($Britzer['Temp']['Ip']['hostIdBin'], 2) + $i), 2)
                 $zeroAdd = $Britzer['Temp']['Ip']['hostIdBin'].Length - $nextHostBin.Length
                 $nextHostBin = ('0' * $zeroAdd) + $nextHostBin
@@ -56,9 +65,9 @@ Function New-IpRange {
             $psObj = [PowerShell]::Create()
             $psObj.RunspacePool = $Britzer['Pool']
             $jobId = ([Guid]::Newguid()).Guid
-            [void] $psObj.AddScript($Job).AddArgument($jobId)
-            [void] $jobObj = [PSCustomObject] @{
-                Thread = $psObj.BeginInvoke()
+            $psObj.AddScript($Job).AddArgument($jobId) | Out-Null
+            [void] $psObj.BeginInvoke()
+            $jobObj = [PSCustomObject] @{
                 PsObj = $psObj
             }
             $Britzer['JobReturns']["$jobId"] = [List[string]]::New()
@@ -71,3 +80,5 @@ Function New-IpRange {
         Watch-Job -JobId $subnetJobs
     }
 }
+
+[list[int]] $test = (1..1000)
