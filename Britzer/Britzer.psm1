@@ -24,7 +24,6 @@ $Britzer['Config'] = ((Get-Content -Path "$PSScriptRoot/appsettings.json") | Con
 $Britzer['Jobs'] = [ConcurrentDictionary[[string],[PSCustomObject]]]::New()
 $Britzer['JobReturns'] = [ConcurrentDictionary[[string],[PSCustomObject]]]::New()
 $Britzer['Temp'] = [ConcurrentDictionary[[String],[PSCustomObject]]]::New()
-
 # copy functions, variables, add other startup scripts, etc for runspaces.
 [void] $sessionState.StartupScripts.Add("$PSScriptRoot/BritzerUsings/using.ps1")
 [void] $sessionState.Variables.Add(([System.Management.Automation.Runspaces.SessionStateVariableEntry]::New('Britzer',$Britzer,$null)))
