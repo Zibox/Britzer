@@ -5,7 +5,7 @@ Function Invoke-ReverseDns {
         [String[]] $Subnet
     )
     Begin {
-        $ret = [System.Net.Dns]::GetHostEntry('52.85.151.122')
+        $ret = [System.Net.Dns]::GetHostEntry('ip')
 
         $subnetBlock = {
             
